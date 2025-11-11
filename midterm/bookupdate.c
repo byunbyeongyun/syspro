@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <string.h>
 #include "book.h"
 
 int main(int argc, char *argv[])
@@ -21,7 +22,7 @@ int main(int argc, char *argv[])
 	printf("--bookupdate--\n");
 	printf("0 book Id: borrow book, 1 bookId : return book  ) ");
 	scanf("%d %d",&b_b,&b_n);
-	lseek(fd, (b_b + START_ID) * sizeof(record), SEEK_SET);
+	lseek(fd, (b_n -1) * sizeof(record), SEEK_SET);
 	if ((read(fd, (char *) &record, sizeof(record)) >0) &&(record.id!=0))
 	{
 		if(b_b==0)
@@ -29,7 +30,7 @@ int main(int argc, char *argv[])
 			if(strcmp(record.borrow,"False")==0)
 			{
 				printf("You've got bollow book..\n");
-				strcyp(record.borrow,"True");
+				strcpy(record.borrow,"True");
 				record.numofborrow+=1;
 				lseek(fd, (long) -sizeof(record), SEEK_CUR);
 				write(fd,(char *) &record, sizeof(record));
@@ -38,9 +39,19 @@ int main(int argc, char *argv[])
 			{
 				printf("You cannot borrow below book since it has been booked.\n");
 			}
-			printf("%-3s %-10s %-10s %-6s %-12s %-6s\n","id","bookname","author","year","numofborrow","borrow");
-			printf("%3d %10s %10s %6s %12d %6s\n",record.id,record.bookname,record.author,record.year,record.numofborrow,record.borrow);
-		
+		}
+		else if(b_b==1)
+		{
+			printf("You've returned bollow book..\n");
+			strcpy(record.borrow,"False");
+			lseek(fd , (long)-sizeof(record), SEEK_CUR);
+			write(fd,(char *) &record, sizeof(record));
+		}
+		printf("%3s %10s %10s %6s %12s %6s\n","id","bookname","author","year","numofborrow","borrow");
+		printf("%3d %10s %10s %6d %12d %6s\n",record.id,record.bookname,record.author,record.year,record.numofborrow,record.borrow);
+
 	}
 	else printf("Input Error");
+	close(fd);
+	exit(0);
 }
