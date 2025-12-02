@@ -5,7 +5,7 @@ struct node {
 	int data;
 	struct node *next;
 };
-void push(struct node *top, int data)
+void push(struct node **top, int data)
 {
 	struct node *p;
 	p = (struct node *) malloc(sizeof(struct node));
@@ -15,27 +15,37 @@ void push(struct node *top, int data)
 		exit(1);
 	}
 	p -> data = data;
-	p->next = top;
-	top = p;
+	p->next = *top;
+	*top = p;
 }
-int pop(struct node *top)
+int pop(struct node **top)
 {
-	struct node *p =top->next;
-	printf("%d\n",p->data);
+	struct node *p =top;
+	int popped_data = p->data;
+	*top = p->next;
+	printf("%d\n", popped_data);
+	free(p);
+	return popped_data;
 }
 int main() {
 	int data;
-	struct node *p, *head = NULL;
-	while(scanf("%d",&data)==1&& data>0 )
+	struct node *head = NULL;
+	while(1)
 	{
-		push(head,data);
+		int scan_result = scanf("%d",&data);
+		if(scan_result != 1) {
+			while(getchar() != '\n');
+			break;
+		}
+		if(data<=0) break;
+
+		push(&head,data);
 	}
 	printf("print stack\n");
-	p=head;
-	while(p!=NULL)
+	
+	while(head !=NULL)
 	{
-		pop(head);
-		p = head->next;
+		pop(&head);
 	}
 	exit(0);
 }
